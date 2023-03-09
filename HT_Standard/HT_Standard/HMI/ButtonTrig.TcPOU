@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ButtonTrig" Id="{89e1faaa-0b08-40c7-87f4-fa6aabed2136}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC ButtonTrig EXTENDS ButtonHMI
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+    outRisingEdge : BOOL;
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_disable := inDisable;
+_on      := inOn AND NOT inError;
+_error   := inError;
+
+outRisingEdge := _button AND NOT inDisable;
+
+_button := FALSE;
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

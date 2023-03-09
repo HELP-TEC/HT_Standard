@@ -1,0 +1,221 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ButtonTrig_Test" Id="{7c2066ca-9f4b-4cee-8d36-8239e270103b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ButtonTrig_Test EXTENDS ButtonPress_Test
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[outputsTestsWithAllInputFalse();
+
+hmiSignalOutputTest();
+
+buttonDisableTest();
+]]></ST>
+    </Implementation>
+    <Method Name="buttonDisableTest" Id="{c9a56d89-6cf3-4fe4-9a03-fac04dfc94f5}">
+      <Declaration><![CDATA[METHOD buttonDisableTest
+VAR_INPUT
+END_VAR
+VAR
+    bp : ButtonTrig;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('buttonDisableTest');
+
+// init fb
+bp.inDisable := FALSE;
+bp.inOn      := FALSE;
+bp.inError   := FALSE;
+bp();
+
+(********** TEST 1 **********)
+
+// Simulate a HMI press signal
+bp.SetButton(TRUE);
+
+// first call
+bp(inDisable := TRUE);
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp.outRisingEdge,
+                  Message  := 'ButtonTrig must be FALSE when desactivated');
+
+// second call
+bp(inDisable := FALSE);
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp.outRisingEdge,
+                  Message  := 'ButtonTrig must stay false even after disable signal is released');
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="hmiSignalOutputTest" Id="{5d973305-16ee-496b-bd8b-b2525a610773}">
+      <Declaration><![CDATA[METHOD hmiSignalOutputTest
+VAR_INPUT
+END_VAR
+VAR
+    bp : ButtonTrig;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('hmiSignalOutputTest');
+
+(* TEST 1 *)
+bp(inDisable := FALSE,
+       inOn      := FALSE,
+       inError   := FALSE);
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp._disable,
+                  Message  := 'TEST 1: ButtonTrig._disable is not FALSE');
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp._on,
+                  Message  := 'TEST 1: ButtonTrig._on is not FALSE');
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp._error,
+                  Message  := 'TEST 1: ButtonTrig._error is not FALSE');
+
+(* TEST 2 *)
+bp(inDisable := TRUE,
+       inOn      := FALSE,
+       inError   := FALSE);
+
+AssertEquals_BOOL(Expected := TRUE,
+                  Actual   := bp._disable,
+                  Message  := 'TEST 2: ButtonTrig._disable is not TRUE');
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp._on,
+                  Message  := 'TEST 2: ButtonTrig._on is not FALSE');
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp._error,
+                  Message  := 'TEST 2: ButtonTrig._error is not FALSE');
+(* TEST 3 *)
+bp(inDisable := TRUE,
+       inOn      := TRUE,
+       inError   := FALSE);
+
+AssertEquals_BOOL(Expected := TRUE,
+                  Actual   := bp._disable,
+                  Message  := 'TEST 3: ButtonTrig._disable is not TRUE');
+
+AssertEquals_BOOL(Expected := TRUE,
+                  Actual   := bp._on,
+                  Message  := 'TEST 3: ButtonTrig._on is not TRUE');
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp._error,
+                  Message  := 'TEST 3: ButtonTrig._error is not FALSE');
+(* TEST 4 *)
+bp(inDisable := TRUE,
+       inOn      := TRUE,
+       inError   := TRUE);
+
+AssertEquals_BOOL(Expected := TRUE,
+                  Actual   := bp._disable,
+                  Message  := 'TEST 4: ButtonTrig._disable is not TRUE');
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp._on,
+                  Message  := 'TEST 4: ButtonTrig._on needs to be FALSE when inError is TRUE');
+
+AssertEquals_BOOL(Expected := TRUE,
+                  Actual   := bp._error,
+                  Message  := 'TEST 4: ButtonTrig._error is not TRUE');
+(* TEST 5 *)
+bp(inDisable := FALSE,
+       inOn      := FALSE,
+       inError   := TRUE);
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp._disable,
+                  Message  := 'TEST 5: ButtonTrig._disable is not FALSE');
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp._on,
+                  Message  := 'TEST 5: ButtonTrig._on needs to be false when inError is TRUE');
+
+AssertEquals_BOOL(Expected := TRUE,
+                  Actual   := bp._error,
+                  Message  := 'TEST 5: ButtonTrig._error is not TRUE');
+
+TcUnit.TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="outputsTestsWithAllInputFalse" Id="{adef7839-7100-4e58-85c4-5e51fa7d250f}">
+      <Declaration><![CDATA[METHOD outputsTestsWithAllInputFalse
+VAR_INPUT
+END_VAR
+VAR
+    bp : ButtonTrig;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('outputsTestsWithAllInputFalse');
+
+// init fb
+bp.inDisable := FALSE;
+bp.inError   := FALSE;
+bp.inOn      := FALSE;
+bp();
+
+(********** TEST 1 **********)
+
+// Simulate a HMI press signal
+bp.SetButton(TRUE);
+
+// first call
+bp();
+
+AssertEquals_BOOL(Expected := TRUE,
+                  Actual   := bp.outRisingEdge,
+                  Message  := 'TEST 1: ButtonPress.outRisingEdge is not TRUE');
+
+(********** TEST 2 **********)
+// second call
+bp();
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp.outRisingEdge,
+                  Message  := 'TEST 2: ButtonPress.outRisingEdge is not FALSE');
+
+(********** TEST 3 **********)
+
+// release button from HMI
+bp.SetButton(FALSE);
+
+// first call (with new input value)
+bp();
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp.outRisingEdge,
+                  Message  := 'TEST 3: ButtonPress.outRisingEdge is not FALSE');
+
+(********** TEST 4 **********)
+
+// second call (with new input value)
+bp();
+
+AssertEquals_BOOL(Expected := FALSE,
+                  Actual   := bp.outRisingEdge,
+                  Message  := 'TEST 4: ButtonPress.outRisingEdge is not FALSE');
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

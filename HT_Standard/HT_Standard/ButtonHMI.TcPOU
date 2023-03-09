@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ButtonHMI" Id="{e17f405f-9715-4dcd-8c44-24e4d387311a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC ButtonHMI
+VAR_INPUT
+    inDisable   : BOOL;         // disable the button and show the 'disable' state of the button
+    inOn        : BOOL;         // show the 'on' state of the button
+    inError     : BOOL;         // show the 'error' state of the button
+END_VAR
+VAR_OUTPUT
+    outPress       : BOOL;
+    outRisingEdge  : BOOL;
+    outFallingEdge : BOOL;
+    outToggle      : BOOL; // is not reset if the inDisable input is TRUE
+END_VAR
+VAR
+    _autoReset : BOOL; 
+
+    _button  : BOOL; // link this variable to the output of your HMI button
+    _disable : BOOL; // link this variable to the 'disable' input of your HMI button
+    _on      : BOOL; // link this variable to the 'on' input of your HMI button
+    _error   : BOOL; // link this variable to the 'error' or 'alarm' input of your HMI button
+    
+    _clk     : BOOL; // used to generate the R_Trig and F_Trig
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_disable := inDisable;
+_on      := inOn AND NOT inError;
+_error   := inError;
+
+outPress  := _button AND NOT inDisable;
+outRisingEdge := _button AND NOT _clk AND NOT inDisable;
+outFallingEdge := NOT _button AND _clk AND NOT inDisable;
+outToggle := outToggle XOR outRisingEdge;
+
+IF _clk AND _button AND _autoReset THEN
+    _button := FALSE;
+END_IF
+
+_clk := _button;
+]]></ST>
+    </Implementation>
+    <Method Name="FB_init" Id="{41658257-7a12-4338-a142-72b3eaf01e4e}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+
+    autoReset : BOOL; // Set to TRUE if your HMI does not reset '_button' (prefered). Otherwise set it to FALSE
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^._autoReset := autoReset;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetButton" Id="{e18e9ecd-db2b-4460-abef-c24ec8ddd661}">
+      <Declaration><![CDATA[{attribute 'hide'} 
+METHOD PUBLIC SetButton
+VAR_INPUT
+    value : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^._button := value;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

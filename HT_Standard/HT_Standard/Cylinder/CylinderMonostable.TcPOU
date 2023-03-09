@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="CylinderMonostable" Id="{a60690f5-9df7-4d3d-bfc8-0271fb0f4ee7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC CylinderMonostable
+VAR_INPUT
+    inReset      : BOOL;
+    inAckAlarm   : BOOL;
+    inManualMode : BOOL;
+
+    inToHomePos : BOOL; // command to go to work position
+    inToWorkPos : BOOL; // command to go to work position
+
+    inAtHomePos_sensor : BOOL; // feedback sensor to confirm home position
+    inAtWorkPos_sensor : BOOL; // feedback sensor to confirm work position
+
+    inAlarmToHomPos_time  : TIME; // maximum allowed travel time from work pos to home pos sensor
+    inAlarmToWorkPos_time : TIME; // maximum allowed travel time from home pos to work pos sensor
+
+    inAtHomePos_time : TIME; // extra waiting time before considaring the cylinder to be in home pos
+    inAtWorkPos_time : TIME; // extra waiting time before considaring the cylinder to be in work pos
+
+END_VAR
+VAR_OUTPUT
+    outValveWorkPos : BOOL;
+    outInHomePos    : BOOL;
+    outInWorkPos    : BOOL;
+    outError        : BOOL;
+    outErrorID      : UDINT;
+END_VAR
+VAR
+    _state : (RESET,
+        IN_GS,
+        MOVE_AS,
+        IN_AS,
+        MOVE_GS,
+        ERROR);
+    _stateBeforeError : INT;
+
+    _bpManu : ButtonHMI(autoReset := TRUE);
+
+    TON_ErrAS  : Tc2_Standard.TON;
+    TON_ErrGS  : Tc2_Standard.TON;
+    TOF_GS     : Tc2_Standard.TOF;
+    TOF_AS     : Tc2_Standard.TOF;
+    TON_GS_AS  : Tc2_Standard.TON;
+    TON_WaitAS : Tc2_Standard.TON;
+    TON_WaitGS : Tc2_Standard.TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_bpManu(inDisable   := NOT inManualMode,
+        inOn        := outValveWorkPos,
+        inError     := outError);
+
+IF inReset THEN
+    _stateBeforeError := RESET;
+    _state            := RESET;
+END_IF
+
+IF inAckAlarm AND (outErrorID <> 0) THEN
+    outErrorID := 0;
+    _state     := _stateBeforeError;
+END_IF
+
+IF TON_GS_AS.Q THEN
+    outErrorID        := 1;
+    _stateBeforeError := RESET;
+    _state            := ERROR;
+END_IF
+
+TON_ErrGS(in := (_state = MOVE_GS) AND NOT inAtHomePos_sensor,
+          pt := inAlarmToHomPos_time);
+
+TON_ErrAS(in := (_state = MOVE_AS) AND NOT inAtWorkPos_sensor,
+          pt := inAlarmToWorkPos_time);
+
+TOF_GS(IN := inToHomePos,
+       PT := T#250MS);
+
+TOF_AS(IN := inToWorkPos,
+       PT := T#250MS);
+
+TON_GS_AS(IN := inAtHomePos_sensor AND inAtWorkPos_sensor,
+          PT := T#250MS);
+
+TON_WaitGS(in := inAtHomePos_sensor,
+           PT := inAtHomePos_time);
+
+TON_WaitAS(in := inAtWorkPos_sensor,
+           PT := inAtWorkPos_time);
+
+CASE _state OF
+
+RESET:
+    IF NOT inReset THEN
+        IF inAtHomePos_sensor THEN
+            _state := IN_GS;
+        ELSIF inAtWorkPos_sensor THEN
+            _state := MOVE_AS;
+        ELSIF outValveWorkPos THEN
+            _state := MOVE_AS;
+        ELSE
+            _state := MOVE_GS;
+        END_IF
+    END_IF
+
+IN_GS:
+    IF inManualMode THEN
+        IF _bpManu.outRisingEdge THEN
+            _state := MOVE_AS;
+        END_IF
+    ELSIF inToWorkPos THEN
+        _state := MOVE_AS;
+    ELSIF NOT TOF_GS.Q THEN
+        outErrorID        := 2;
+        _stateBeforeError := MOVE_GS;
+        _state            := ERROR;
+    END_IF
+
+MOVE_AS:
+    IF TON_WaitAS.Q OR inManualMode THEN
+        _state := IN_AS;
+    ELSIF TON_ErrAS.Q THEN
+        outErrorID        := 3;
+        _stateBeforeError := MOVE_AS;
+        _state            := ERROR;
+    END_IF
+
+IN_AS:
+    IF inManualMode THEN
+        IF _bpManu.outRisingEdge THEN
+            _state := MOVE_GS;
+        END_IF
+    ELSIF inToHomePos THEN
+        _state := MOVE_GS;
+    ELSIF NOT TOF_AS.Q THEN
+        outErrorID        := 4;
+        _stateBeforeError := MOVE_AS;
+        _state            := ERROR;
+    END_IF
+
+MOVE_GS:
+    IF TON_WaitGS.Q OR inManualMode THEN
+        _state := IN_GS;
+    ELSIF TON_ErrGS.Q THEN
+        outErrorID        := 5;
+        _stateBeforeError := MOVE_GS;
+        _state            := ERROR;
+    END_IF
+
+ERROR:
+    IF (outErrorID = 0) THEN
+        outErrorID := 91;
+    END_IF;
+
+ELSE
+    outErrorID := 99;
+    _state     := ERROR;
+END_CASE
+
+outInHomePos  := (_state = IN_GS);
+outInWorkPos := (_state = IN_AS);
+outError     := (outErrorID <> 0);
+outErrorID   := outErrorID;
+
+// We use a set/reset pattern to keep the information of the valve state
+// after an alarm
+IF (_state = MOVE_AS) THEN
+    outValveWorkPos := TRUE;
+ELSIF (_state = MOVE_GS) OR (_state = IN_GS) THEN
+    outValveWorkPos := FALSE;
+END_IF
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

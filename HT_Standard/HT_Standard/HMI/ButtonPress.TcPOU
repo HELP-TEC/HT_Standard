@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ButtonPress" Id="{d2dcafbd-5508-4cb2-8df9-57a88efd2ac5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC ButtonPress EXTENDS ButtonHMI
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+    outPress       : BOOL;
+    outRisingEdge  : BOOL;
+    outFallingEdge : BOOL;
+END_VAR
+VAR
+    _clk : BOOL; // used to generate the R_Trig and F_Trig
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_disable := inDisable;
+_on      := inOn AND NOT inError;
+_error   := inError;
+
+outPress       := _button AND NOT inDisable;
+outRisingEdge  := _button AND NOT _clk AND NOT inDisable;
+outFallingEdge := NOT _button AND _clk AND NOT inDisable;
+
+_clk := _button;]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
