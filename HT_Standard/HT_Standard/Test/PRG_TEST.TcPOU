@@ -6,6 +6,7 @@ VAR
     _buttonPress_Test        : ButtonPress_Test;
     _buttonTrig_Test         : ButtonTrig_Test;
     _cylinderMonostable_Test : CylinderMonostable_Test;
+    _cylinderBistable_Test   : CylinderBistable_Test;
 END_VAR
 ]]></Declaration>
     <Implementation>

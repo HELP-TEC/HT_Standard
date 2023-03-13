@@ -29,10 +29,16 @@
     <Compile Include="Cylinder\CylinderMonostable.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Cylinder\CylinderBistable.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Cylinder\CylinderTimingConfig.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Cylinder\eCylinderError.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Cylinder\eCylinderStep.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="HMI\ButtonHMI.TcPOU">
@@ -54,6 +60,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\CylinderMonostable_Test.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Test\CylinderBistable_Test.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Test\PRG_TEST.TcPOU">
