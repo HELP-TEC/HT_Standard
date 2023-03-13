@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="CylinderTimingConfig" Id="{6b7659d1-82ba-4d34-828d-7177d557a445}">
+    <Declaration><![CDATA[/// timing configuration for FINAL standard cylinder 2 positions
+TYPE CylinderTimingConfig :
+STRUCT
+    alarmToHomPos_time  : TIME := T#3S; // maximum allowed travel time from work pos to home pos sensor
+    alarmToWorkPos_time : TIME := T#3S; // maximum allowed travel time from home pos to work pos sensor
+
+    atHomePos_time : TIME := T#100MS; // extra waiting time before considaring the cylinder to be in home pos
+    atWorkPos_time : TIME := T#100MS; // extra waiting time before considaring the cylinder to be in work pos
+
+    sensorFilterTime : TIME := T#250MS; // Filter the possible flickering of sensor
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

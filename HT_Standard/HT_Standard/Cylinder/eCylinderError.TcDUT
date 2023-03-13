@@ -2,12 +2,20 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <DUT Name="eCylinderError" Id="{564f391f-214e-4b87-90d5-1aa938a0994c}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
-{attribute 'strict'}
+{attribute 'to_string'}
 TYPE eCylinderError :
 (
-	none := 0,
+    none                           := 0,
+    sensorHomeAndWorkBothActivated := 1,
+    sensorInHomePosDisapeared      := 2,
+    timeoutMoveInWorkPos           := 3,
+    sensorInWorkPosDisapeared      := 4,
+    timeoutHomeInWorkPos           := 5,
+    inErrorState                   := 6,
+    uknownStepNumber               := 7,
+
     _max
-);
+) UDINT;
 END_TYPE
 ]]></Declaration>
   </DUT>

@@ -1,23 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="CylinderMonostable" Id="{a60690f5-9df7-4d3d-bfc8-0271fb0f4ee7}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC CylinderMonostable
+    <Declaration><![CDATA[/// Manage a monostable valve
+/// use inGoToHomePos and inGoToWorkPos to command the valve
+/// inGoToHomePos has precedence to inGoToWorkPos
+FUNCTION_BLOCK PUBLIC CylinderMonostable
 VAR_INPUT
-    inReset      : BOOL;
+    inReset      : BOOL; // Force the valve to stay in place
     inAckAlarm   : BOOL;
     inManualMode : BOOL;
 
-    inToHomePos : BOOL; // command to go to work position
-    inToWorkPos : BOOL; // command to go to work position
+    inGoToHomePos : BOOL;
+    inGoToWorkPos : BOOL;
 
     inAtHomePos_sensor : BOOL; // feedback sensor to confirm home position
     inAtWorkPos_sensor : BOOL; // feedback sensor to confirm work position
 
-    inAlarmToHomPos_time  : TIME; // maximum allowed travel time from work pos to home pos sensor
-    inAlarmToWorkPos_time : TIME; // maximum allowed travel time from home pos to work pos sensor
-
-    inAtHomePos_time : TIME; // extra waiting time before considaring the cylinder to be in home pos
-    inAtWorkPos_time : TIME; // extra waiting time before considaring the cylinder to be in work pos
+    inTimingConfig : CylinderTimingConfig;
 
 END_VAR
 VAR_OUTPUT
@@ -26,17 +25,18 @@ VAR_OUTPUT
     outInWorkPos    : BOOL;
     outError        : BOOL;
     outErrorID      : UDINT;
+    outErrorString  : STRING;
 END_VAR
 VAR
     _state : (RESET,
-        IN_GS,
-        MOVE_AS,
-        IN_AS,
-        MOVE_GS,
+        IN_HOME_POS,
+        MOVE_TO_WORK_POS,
+        IN_WORK_POS,
+        MOVE_TO_HOME_POS,
         ERROR);
     _stateBeforeError : INT;
 
-    _bpManu : ButtonHMI(autoReset := TRUE);
+    _bpManu : ButtonTrig;
 
     TON_ErrAS  : Tc2_Standard.TON;
     TON_ErrGS  : Tc2_Standard.TON;
@@ -48,9 +48,8 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[_bpManu(inDisable   := NOT inManualMode,
-        inOn        := outValveWorkPos,
-        inError     := outError);
+      <ST><![CDATA[// inGoToWorkPos can not be TRUE if inGoToHomePos is TRUE
+inGoToWorkPos := inGoToWorkPos AND NOT inGoToHomePos;
 
 IF inReset THEN
     _stateBeforeError := RESET;
@@ -62,113 +61,114 @@ IF inAckAlarm AND (outErrorID <> 0) THEN
     _state     := _stateBeforeError;
 END_IF
 
+_bpManu(inDisable := NOT inManualMode,
+        inOn      := outInWorkPos,
+        inError   := outError);
+
+TON_ErrGS(in := (_state = MOVE_TO_HOME_POS) AND NOT inAtHomePos_sensor,
+          pt := inTimingConfig.alarmToHomPos_time);
+
+TON_ErrAS(in := (_state = MOVE_TO_WORK_POS) AND NOT inAtWorkPos_sensor,
+          pt := inTimingConfig.alarmToWorkPos_time);
+
+TOF_GS(IN := inGoToHomePos,
+       PT := inTimingConfig.sensorFilterTime);
+
+TOF_AS(IN := inGoToWorkPos,
+       PT := inTimingConfig.sensorFilterTime);
+
+TON_GS_AS(IN := inAtHomePos_sensor AND inAtWorkPos_sensor,
+          PT := inTimingConfig.sensorFilterTime);
+
+TON_WaitGS(in := inAtHomePos_sensor,
+           PT := inTimingConfig.atHomePos_time);
+
+TON_WaitAS(in := inAtWorkPos_sensor,
+           PT := inTimingConfig.atWorkPos_time);
+
 IF TON_GS_AS.Q THEN
-    outErrorID        := 1;
+    outErrorID        := eCylinderError.sensorHomeAndWorkBothActivated;
     _stateBeforeError := RESET;
     _state            := ERROR;
 END_IF
-
-TON_ErrGS(in := (_state = MOVE_GS) AND NOT inAtHomePos_sensor,
-          pt := inAlarmToHomPos_time);
-
-TON_ErrAS(in := (_state = MOVE_AS) AND NOT inAtWorkPos_sensor,
-          pt := inAlarmToWorkPos_time);
-
-TOF_GS(IN := inToHomePos,
-       PT := T#250MS);
-
-TOF_AS(IN := inToWorkPos,
-       PT := T#250MS);
-
-TON_GS_AS(IN := inAtHomePos_sensor AND inAtWorkPos_sensor,
-          PT := T#250MS);
-
-TON_WaitGS(in := inAtHomePos_sensor,
-           PT := inAtHomePos_time);
-
-TON_WaitAS(in := inAtWorkPos_sensor,
-           PT := inAtWorkPos_time);
 
 CASE _state OF
 
 RESET:
     IF NOT inReset THEN
         IF inAtHomePos_sensor THEN
-            _state := IN_GS;
+            _state := IN_HOME_POS;
         ELSIF inAtWorkPos_sensor THEN
-            _state := MOVE_AS;
+            _state := IN_WORK_POS;
         ELSIF outValveWorkPos THEN
-            _state := MOVE_AS;
+            _state := MOVE_TO_WORK_POS;
         ELSE
-            _state := MOVE_GS;
+            _state := MOVE_TO_HOME_POS;
         END_IF
     END_IF
 
-IN_GS:
+IN_HOME_POS:
     IF inManualMode THEN
         IF _bpManu.outRisingEdge THEN
-            _state := MOVE_AS;
+            _state := MOVE_TO_WORK_POS;
         END_IF
-    ELSIF inToWorkPos THEN
-        _state := MOVE_AS;
+    ELSIF inGoToWorkPos THEN
+        _state := MOVE_TO_WORK_POS;
     ELSIF NOT TOF_GS.Q THEN
-        outErrorID        := 2;
-        _stateBeforeError := MOVE_GS;
+        outErrorID        := eCylinderError.sensorInHomePosDisapeared;
+        _stateBeforeError := MOVE_TO_HOME_POS;
         _state            := ERROR;
     END_IF
 
-MOVE_AS:
+MOVE_TO_WORK_POS:
     IF TON_WaitAS.Q OR inManualMode THEN
-        _state := IN_AS;
+        _state := IN_WORK_POS;
     ELSIF TON_ErrAS.Q THEN
-        outErrorID        := 3;
-        _stateBeforeError := MOVE_AS;
+        outErrorID        := eCylinderError.timeoutMoveInWorkPos;
+        _stateBeforeError := MOVE_TO_WORK_POS;
         _state            := ERROR;
     END_IF
 
-IN_AS:
+IN_WORK_POS:
     IF inManualMode THEN
         IF _bpManu.outRisingEdge THEN
-            _state := MOVE_GS;
+            _state := MOVE_TO_HOME_POS;
         END_IF
-    ELSIF inToHomePos THEN
-        _state := MOVE_GS;
+    ELSIF inGoToHomePos THEN
+        _state := MOVE_TO_HOME_POS;
     ELSIF NOT TOF_AS.Q THEN
-        outErrorID        := 4;
-        _stateBeforeError := MOVE_AS;
+        outErrorID        := eCylinderError.sensorInWorkPosDisapeared;
+        _stateBeforeError := MOVE_TO_WORK_POS;
         _state            := ERROR;
     END_IF
 
-MOVE_GS:
+MOVE_TO_HOME_POS:
     IF TON_WaitGS.Q OR inManualMode THEN
-        _state := IN_GS;
+        _state := IN_HOME_POS;
     ELSIF TON_ErrGS.Q THEN
-        outErrorID        := 5;
-        _stateBeforeError := MOVE_GS;
+        outErrorID        := eCylinderError.timeoutHomeInWorkPos;
+        _stateBeforeError := MOVE_TO_HOME_POS;
         _state            := ERROR;
     END_IF
 
 ERROR:
     IF (outErrorID = 0) THEN
-        outErrorID := 91;
+        outErrorID := eCylinderError.inErrorState;
     END_IF;
 
 ELSE
-    outErrorID := 99;
+    outErrorID := eCylinderError.uknownStepNumber;
     _state     := ERROR;
 END_CASE
 
-outInHomePos  := (_state = IN_GS);
-outInWorkPos := (_state = IN_AS);
-outError     := (outErrorID <> 0);
-outErrorID   := outErrorID;
+outInHomePos   := (_state = IN_HOME_POS);
+outInWorkPos   := (_state = IN_WORK_POS);
+outError       := (outErrorID <> 0);
+outErrorID     := outErrorID;
+outErrorString := TO_STRING(outErrorID);
 
-// We use a set/reset pattern to keep the information of the valve state
-// after an alarm
-IF (_state = MOVE_AS) THEN
-    outValveWorkPos := TRUE;
-ELSIF (_state = MOVE_GS) OR (_state = IN_GS) THEN
-    outValveWorkPos := FALSE;
+IF (_state <> RESET) AND (_state <> ERROR) THEN
+    outValveWorkPos := (_state = MOVE_TO_WORK_POS) OR (_state = IN_WORK_POS);
 END_IF
 ]]></ST>
     </Implementation>
