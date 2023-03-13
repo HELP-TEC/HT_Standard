@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="CylinderBistable" Id="{70b82c86-c301-4ab4-b95c-03eebd3a8b19}" SpecialFunc="None">
+    <Declaration><![CDATA[/// Manage a bistable valve
+/// use inGoToHomePos and inGoToWorkPos to command the valve
+/// inGoToHomePos has precedence to inGoToWorkPos
+/// This FB only activate the corresponding output of the
+/// valve during the travel of the cylinder
+FUNCTION_BLOCK PUBLIC CylinderBistable EXTENDS CylinderMonostable
+VAR_OUTPUT
+    outValvePosHome : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SUPER^();
+
+IF (_state <> eCylinderStep.RESET) AND (_state <> eCylinderStep.ERROR) THEN
+    outValvePosHome := (_state = eCylinderStep.MOVE_TO_HOME_POS);
+    // @Override
+    outValvePosWork := (_state = eCylinderStep.MOVE_TO_WORK_POS);
+END_IF
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
