@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="PRG_TEST" Id="{f7b1802e-84ab-4d4a-a7d7-75643092ae7d}" SpecialFunc="None">
-    <Declaration><![CDATA[PROGRAM PRG_TEST
+    <Declaration><![CDATA[PROGRAM INTERNAL PRG_TEST
 VAR
     _buttonPress_Test        : ButtonPress_Test;
     _buttonTrig_Test         : ButtonTrig_Test;

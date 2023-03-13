@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="ButtonPress_Test" Id="{5c047cf0-2c60-4cf4-9b86-0afaed564a2f}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK ButtonPress_Test EXTENDS TcUnit.FB_TestSuite
+    <Declaration><![CDATA[FUNCTION_BLOCK INTERNAL ButtonPress_Test EXTENDS TcUnit.FB_TestSuite
 VAR_INPUT
 END_VAR
 VAR_OUTPUT

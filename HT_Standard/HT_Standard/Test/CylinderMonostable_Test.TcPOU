@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="CylinderMonostable_Test" Id="{a2ac42ec-eeff-43c6-9fd6-369a43503a8a}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK CylinderMonostable_Test EXTENDS FB_TestSuite
+    <Declaration><![CDATA[FUNCTION_BLOCK INTERNAL CylinderMonostable_Test EXTENDS FB_TestSuite
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
