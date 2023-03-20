@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.35" ClassName="CNestedPlcProjDef">
 	<Project GUID="{1E7C6731-E3BE-4C46-9CFA-80D0099F3A7F}" Name="HT_Standard" PrjFilePath="..\..\HT_Standard\HT_Standard.plcproj" TmcFilePath="..\..\HT_Standard\HT_Standard.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-		<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="HT_Standard\HT_Standard.tmc" TmcHash="{DDF2E6FF-096E-F0C3-A27A-D89891629F04}">
+		<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="HT_Standard\HT_Standard.tmc" TmcHash="{95DC7BA7-F4FD-E234-23D3-BB3BEE602283}">
 			<Name>HT_Standard Instance</Name>
 			<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 			<Contexts>
