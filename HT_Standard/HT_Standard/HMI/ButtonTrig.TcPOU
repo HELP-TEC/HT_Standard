@@ -8,6 +8,7 @@ VAR_OUTPUT
     outRisingEdge : BOOL;
 END_VAR
 VAR
+    _clk : BOOL; // used to generate the R_Trig
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -15,7 +16,9 @@ END_VAR
 _on      := inOn AND NOT inError;
 _error   := inError;
 
-outRisingEdge := _button AND NOT inDisable;
+outRisingEdge := _button AND NOT _clk AND NOT inDisable;
+
+_clk := _button;
 
 _button := FALSE;
 ]]></ST>

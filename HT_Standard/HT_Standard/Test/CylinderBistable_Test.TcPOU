@@ -205,8 +205,8 @@ VAR_INPUT
     initTestDefine : STRING;
 END_VAR
 VAR
-    testInitCylinder_name : STRING := CONCAT('InitCylinder-', initTestDefine);
-    testHomeCylinder_name : STRING := CONCAT('Wait cylinder to be in home pos-', initTestDefine);
+    testInitCylinder_name : STRING := Tc2_Standard.CONCAT('InitCylinder-', initTestDefine);
+    testHomeCylinder_name : STRING := Tc2_Standard.CONCAT('Wait cylinder to be in home pos-', initTestDefine);
 END_VAR
 VAR_INST
     simulateTravel_ton : Tc2_Standard.TON;

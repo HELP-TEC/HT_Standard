@@ -15,7 +15,8 @@ END_VAR
 hmiSignalOutputTest();
 
 buttonDisableTest();
-]]></ST>
+
+LongPressTest();]]></ST>
     </Implementation>
     <Method Name="buttonDisableTest" Id="{c9a56d89-6cf3-4fe4-9a03-fac04dfc94f5}">
       <Declaration><![CDATA[METHOD buttonDisableTest
@@ -72,8 +73,8 @@ END_VAR
 
 (* TEST 1 *)
 bp(inDisable := FALSE,
-       inOn      := FALSE,
-       inError   := FALSE);
+   inOn      := FALSE,
+   inError   := FALSE);
 
 AssertEquals_BOOL(Expected := FALSE,
                   Actual   := bp._disable,
@@ -89,8 +90,8 @@ AssertEquals_BOOL(Expected := FALSE,
 
 (* TEST 2 *)
 bp(inDisable := TRUE,
-       inOn      := FALSE,
-       inError   := FALSE);
+   inOn      := FALSE,
+   inError   := FALSE);
 
 AssertEquals_BOOL(Expected := TRUE,
                   Actual   := bp._disable,
@@ -103,10 +104,11 @@ AssertEquals_BOOL(Expected := FALSE,
 AssertEquals_BOOL(Expected := FALSE,
                   Actual   := bp._error,
                   Message  := 'TEST 2: ButtonTrig._error is not FALSE');
+
 (* TEST 3 *)
 bp(inDisable := TRUE,
-       inOn      := TRUE,
-       inError   := FALSE);
+   inOn      := TRUE,
+   inError   := FALSE);
 
 AssertEquals_BOOL(Expected := TRUE,
                   Actual   := bp._disable,
@@ -119,10 +121,11 @@ AssertEquals_BOOL(Expected := TRUE,
 AssertEquals_BOOL(Expected := FALSE,
                   Actual   := bp._error,
                   Message  := 'TEST 3: ButtonTrig._error is not FALSE');
+
 (* TEST 4 *)
 bp(inDisable := TRUE,
-       inOn      := TRUE,
-       inError   := TRUE);
+   inOn      := TRUE,
+   inError   := TRUE);
 
 AssertEquals_BOOL(Expected := TRUE,
                   Actual   := bp._disable,
@@ -135,10 +138,11 @@ AssertEquals_BOOL(Expected := FALSE,
 AssertEquals_BOOL(Expected := TRUE,
                   Actual   := bp._error,
                   Message  := 'TEST 4: ButtonTrig._error is not TRUE');
+
 (* TEST 5 *)
 bp(inDisable := FALSE,
-       inOn      := FALSE,
-       inError   := TRUE);
+   inOn      := FALSE,
+   inError   := TRUE);
 
 AssertEquals_BOOL(Expected := FALSE,
                   Actual   := bp._disable,
@@ -152,7 +156,49 @@ AssertEquals_BOOL(Expected := TRUE,
                   Actual   := bp._error,
                   Message  := 'TEST 5: ButtonTrig._error is not TRUE');
 
-TcUnit.TEST_FINISHED();]]></ST>
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="LongPressTest" Id="{b8e12e6a-12af-4387-815e-b7a1b9ef548c}">
+      <Declaration><![CDATA[METHOD LongPressTest
+VAR_INPUT
+END_VAR
+VAR
+    bp : ButtonTrig;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('LongPressTest for ButtonTrig');
+
+(* TEST 1 *)
+bp(inDisable := FALSE,
+   inOn      := FALSE,
+   inError   := FALSE);
+
+bp.SetButton(TRUE);
+bp();
+
+AssertTrue(bp.outRisingEdge, 'At the first call, bp.outRisingEdge must be TRUE');
+
+// stay pressed with the HMI
+bp.SetButton(TRUE);
+bp();
+
+AssertFalse(bp.outRisingEdge, 'At the second call, bp.outRisingEdge must be FALSE even if the HMI force the button to be on');
+
+bp.SetButton(FALSE);
+bp();
+
+AssertFalse(bp.outRisingEdge, 'outRisingEdge must be FALSE');
+
+bp.SetButton(TRUE);
+bp();
+
+AssertTrue(bp.outRisingEdge, 'outRisingEdge must be TRUE right after the rising edge of _button');
+
+TcUnit.TEST_FINISHED();
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="outputsTestsWithAllInputFalse" Id="{adef7839-7100-4e58-85c4-5e51fa7d250f}">

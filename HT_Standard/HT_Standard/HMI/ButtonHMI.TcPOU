@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="ButtonHMI" Id="{7289cd62-48f7-497b-b98c-a40c2e2036a6}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK INTERNAL ABSTRACT ButtonHMI
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT ButtonHMI
 VAR_INPUT
     inDisable : BOOL; // disable the button and show the 'disable' state of the button
     inOn      : BOOL; // show the 'on' state of the button
