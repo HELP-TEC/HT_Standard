@@ -7,7 +7,7 @@
 FUNCTION_BLOCK PUBLIC CylinderMonostable
 VAR_INPUT
     inReset      : BOOL; // Force the valve to stay in place
-    inAckAlarm   : BOOL;
+    inErrorAck   : BOOL;
     inManualMode : BOOL;
 
     inGoToPosHome : BOOL;
@@ -51,7 +51,7 @@ IF inReset THEN
     _state            := eCylinderStep.RESET;
 END_IF
 
-IF inAckAlarm AND (outErrorID <> 0) THEN
+IF inErrorAck AND (outErrorID <> 0) THEN
     outErrorID := 0;
     _state     := _stateBeforeError;
 END_IF
