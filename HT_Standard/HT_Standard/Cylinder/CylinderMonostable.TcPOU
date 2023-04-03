@@ -60,11 +60,11 @@ _bpManu(inDisable := NOT inManualMode,
         inOn      := outAtPosWork,
         inError   := outError);
 
-TON_ErrGS(in := (_state = eCylinderStep.MOVE_TO_HOME_POS) AND NOT inAtPosHome_sensor,
-          pt := inTimingConfig.alarmToHomPos_time);
+// We update the timer to notice an error
+TON_ErrGS();
 
-TON_ErrAS(in := (_state = eCylinderStep.MOVE_TO_WORK_POS) AND NOT inAtPosWork_sensor,
-          pt := inTimingConfig.alarmToWorkPos_time);
+// We update the timer to notice an error
+TON_ErrAS();
 
 TOF_sensorHomePosLost(IN := inAtPosHome_sensor,
                       PT := inTimingConfig.sensorFilterTime);
@@ -163,6 +163,14 @@ END_CASE
 IF (_state <> eCylinderStep.RESET) AND (_state <> eCylinderStep.ERROR) THEN
     outValvePosWork := (_state = eCylinderStep.MOVE_TO_WORK_POS) OR (_state = eCylinderStep.IN_WORK_POS);
 END_IF
+
+// We have to update the timer here to be able to match the timing error
+TON_ErrGS(in := (_state = eCylinderStep.MOVE_TO_HOME_POS) AND NOT inAtPosHome_sensor,
+          pt := inTimingConfig.alarmToHomPos_time);
+
+// We have to update the timer here to be able to match the timing error
+TON_ErrAS(in := (_state = eCylinderStep.MOVE_TO_WORK_POS) AND NOT inAtPosWork_sensor,
+          pt := inTimingConfig.alarmToWorkPos_time);
 
 outAtPosHome   := (_state = eCylinderStep.IN_HOME_POS);
 outAtPosWork   := (_state = eCylinderStep.IN_WORK_POS);

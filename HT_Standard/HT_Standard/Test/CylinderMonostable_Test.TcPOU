@@ -22,6 +22,10 @@ END_VAR
       <ST><![CDATA[THIS^.InitCylinder(_cylinder, 'testWithoutError');
 THIS^.OpenCylinder(_cylinder, 'open test');
 THIS^.CloseCylinder(_cylinder);
+THIS^.ErrorWhileOpening(_cylinder);
+THIS^.ErrorAck(_cylinder, 'ack error opening');
+THIS^.ErrorWhileClosing(_cylinder);
+THIS^.ErrorAck(_cylinder, 'ack error closing');
 THIS^.CloseCylinderDuringOpening(_cylinder);
 THIS^.OpenCylinder(_cylinder, 'open for HomeCylinderDuringWork test');
 THIS^.HomeCylinderDuringWork(_cylinder);
@@ -132,6 +136,118 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="ErrorAck" Id="{523ff311-adbb-4210-a878-b00caac82ecf}">
+      <Declaration><![CDATA[METHOD ErrorAck
+VAR_INPUT
+    refCylinder : REFERENCE TO CylinderMonostable;
+    testName    : STRING;
+END_VAR
+VAR
+    errorAckCylinderTest_name : STRING := Tc2_Standard.CONCAT('Error Ack ', testName);
+END_VAR
+VAR_INST
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TcUnit.TEST_ORDERED(errorAckCylinderTest_name) THEN
+
+    refCylinder(inErrorAck := TRUE);
+
+    AssertFalse(refCylinder.outAtPosHome, 'outInHomePos is not FALSE');
+    AssertFalse(refCylinder.outAtPosWork, 'outInWorkPos is not FALSE');
+    AssertFalse(refCylinder.outError, 'outError is not FALSE');
+    AssertEquals_UDINT(refCylinder.outErrorID, 0, 'Error ID do not match');
+
+    TcUnit.TEST_FINISHED_NAMED(errorAckCylinderTest_name);
+
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ErrorWhileClosing" Id="{8b0ff0da-9c08-49c0-b8b3-5d45dc7790e0}">
+      <Declaration><![CDATA[METHOD ErrorWhileClosing
+VAR_INPUT
+    refCylinder : REFERENCE TO CylinderMonostable;
+END_VAR
+VAR
+    errorCylinderTest_name : STRING := 'ErrorWhileClosing';
+END_VAR
+VAR_INST
+    travelTime_ton : Tc2_Standard.TON;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TcUnit.TEST_ORDERED(errorCylinderTest_name) THEN
+
+    refCylinder(inGoToPosHome      := TRUE,
+                inGoToPosWork      := FALSE,
+                inAtPosHome_sensor := FALSE,
+                inAtPosWork_sensor := refCylinder.outAtPosWork);
+
+    travelTime_ton(IN := TRUE, PT := THIS^._timingConfig.alarmToHomPos_time);
+
+    IF travelTime_ton.Q THEN
+        AssertFalse(refCylinder.outAtPosHome, 'outInHomePos is not FALSE');
+        AssertFalse(refCylinder.outAtPosWork, 'outInWorkPos is not FALSE');
+        AssertTrue(refCylinder.outError, 'outError is not TRUE');
+        AssertEquals_UDINT(refCylinder.outErrorID,
+                           eCylinderError.timeoutMoveInHomePos,
+                           'Error ID do not match');
+
+        travelTime_ton(IN := FALSE);
+
+        // set the sensor to prevent further error
+        _cylinder(inAtPosHome_sensor := TRUE);
+
+        TcUnit.TEST_FINISHED_NAMED(errorCylinderTest_name);
+    END_IF
+
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ErrorWhileOpening" Id="{d3fedf6f-fb51-4695-a1fd-0fda91cb792e}">
+      <Declaration><![CDATA[METHOD ErrorWhileOpening
+VAR_INPUT
+    refCylinder : REFERENCE TO CylinderMonostable;
+END_VAR
+VAR
+    errorCylinderTest_name : STRING := 'ErrorWhileOpening';
+END_VAR
+VAR_INST
+    travelTime_ton : Tc2_Standard.TON;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TcUnit.TEST_ORDERED(errorCylinderTest_name) THEN
+
+    refCylinder(inGoToPosHome      := FALSE,
+                inGoToPosWork      := TRUE,
+                inAtPosHome_sensor := refCylinder.outAtPosHome,
+                inAtPosWork_sensor := FALSE);
+
+    travelTime_ton(IN := TRUE, PT := THIS^._timingConfig.alarmToWorkPos_time);
+
+    IF travelTime_ton.Q THEN
+        AssertFalse(refCylinder.outAtPosHome, 'outInHomePos is not FALSE');
+        AssertFalse(refCylinder.outAtPosWork, 'outInWorkPos is not FALSE');
+        AssertTrue(refCylinder.outError, 'outError is not TRUE');
+        AssertEquals_UDINT(refCylinder.outErrorID,
+                           eCylinderError.timeoutMoveInWorkPos,
+                           'Error ID do not match');
+
+        travelTime_ton(IN := FALSE);
+
+        // set the sensor to prevent further error
+        _cylinder(inAtPosWork_sensor := TRUE);
+
+        TcUnit.TEST_FINISHED_NAMED(errorCylinderTest_name);
+    END_IF
+
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="HomeCylinderDuringWork" Id="{ee0c0af7-eab3-462c-95c9-dbdbe16f3807}">
       <Declaration><![CDATA[METHOD HomeCylinderDuringWork
 VAR_INPUT
@@ -217,7 +333,7 @@ END_VAR
 IF TcUnit.TEST_ORDERED(testInitCylinder_name) THEN
 
     refCylinder(inReset            := FALSE,
-                inAckAlarm         := FALSE,
+                inErrorAck         := FALSE,
                 inManualMode       := FALSE,
                 inGoToPosHome      := FALSE,
                 inGoToPosWork      := FALSE,
