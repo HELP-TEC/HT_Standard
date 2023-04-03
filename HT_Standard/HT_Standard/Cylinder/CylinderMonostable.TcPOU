@@ -145,7 +145,7 @@ eCylinderStep.MOVE_TO_HOME_POS:
     ELSIF inGoToPosWork THEN
         _state := eCylinderStep.MOVE_TO_WORK_POS;
     ELSIF TON_ErrGS.Q THEN
-        outErrorID        := eCylinderError.timeoutHomeInWorkPos;
+        outErrorID        := eCylinderError.timeoutMoveInHomePos;
         _stateBeforeError := eCylinderStep.MOVE_TO_HOME_POS;
         _state            := eCylinderStep.ERROR;
     END_IF

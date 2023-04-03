@@ -10,7 +10,7 @@ TYPE eCylinderError :
     sensorInHomePosDisapeared      := 2,
     timeoutMoveInWorkPos           := 3,
     sensorInWorkPosDisapeared      := 4,
-    timeoutHomeInWorkPos           := 5,
+    timeoutMoveInHomePos           := 5,
     inErrorState                   := 6,
     uknownStepNumber               := 7,
 
