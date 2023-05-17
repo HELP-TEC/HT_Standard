@@ -15,9 +15,6 @@ END_VAR
 VAR
     ton_ToHomePosition : Tc2_Standard.TON;
     ton_ToWorkPosition : Tc2_Standard.TON;
-
-    _inPosHome : BOOL;
-    _inPosWork : BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -26,18 +23,12 @@ IF NOT __ISVALIDREF(inRefCylinder) THEN
     RETURN;
 END_IF
 
-IF inRefCylinder.outValvePosHome THEN
-    _inPosHome := TRUE;
-    _inPosWork := FALSE;
-ELSIF inRefCylinder.outValvePosWork THEN
-    _inPosHome := FALSE;
-    _inPosWork := TRUE;
-END_IF
-
-ton_ToHomePosition(IN := _inPosHome,
+ton_ToHomePosition(IN := inRefCylinder.outValvePosHome OR
+                         (inRefCylinder._state = eCylinderStep.IN_HOME_POS),
                    PT := DINT_TO_TIME(inToHomePositionTime_ms));
 
-ton_ToWorkPosition(IN := _inPosWork,
+ton_ToWorkPosition(IN := inRefCylinder.outValvePosWork OR
+                         (inRefCylinder._state = eCylinderStep.IN_WORK_POS),
                    PT := DINT_TO_TIME(inToWorkPositionTime_ms));
 
 inRefCylinder.inAtPosHome_sensor := (inEnable AND ton_ToHomePosition.Q) OR
