@@ -4,7 +4,7 @@
     <Declaration><![CDATA[/// timing configuration for FINAL standard cylinder 2 positions
 TYPE CylinderTimingConfig :
 STRUCT
-    alarmToHomPos_time  : TIME := T#3S; // maximum allowed travel time from work pos to home pos sensor
+    alarmToHomePos_time : TIME := T#3S; // maximum allowed travel time from work pos to home pos sensor
     alarmToWorkPos_time : TIME := T#3S; // maximum allowed travel time from home pos to work pos sensor
 
     atHomePos_time : TIME := T#100MS; // extra waiting time before considaring the cylinder to be in home pos

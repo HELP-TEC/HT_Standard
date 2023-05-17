@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ButtonLongPress" Id="{0cbcefbe-5e51-4a8b-9c64-3ae245556213}" SpecialFunc="None">
+    <Declaration><![CDATA[// The button must be pressed for a given time
+// to activate its outputs
+FUNCTION_BLOCK ButtonLongPress EXTENDS ButtonPress
+VAR_INPUT
+    inPressTime : TIME;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+    _tonPressTime : Tc2_Standard.TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_tonPressTime(IN := _button AND NOT inDisable,
+              PT := inPressTime);
+
+_disable := inDisable;
+_on      := inOn AND NOT inError;
+_error   := inError;
+
+outPress       := _tonPressTime.Q AND NOT inDisable;
+outRisingEdge  := _tonPressTime.Q AND NOT _clk AND NOT inDisable;
+outFallingEdge := NOT _tonPressTime.Q AND _clk AND NOT inDisable;
+
+_clk := _tonPressTime.Q;
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

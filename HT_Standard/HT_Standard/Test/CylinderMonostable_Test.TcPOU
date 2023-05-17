@@ -8,7 +8,7 @@ VAR_OUTPUT
 END_VAR
 VAR
     _cylinder     : CylinderMonostable;
-    _timingConfig : CylinderTimingConfig := (alarmToHomPos_time := T#1S,
+    _timingConfig : CylinderTimingConfig := (alarmToHomePos_time := T#1S,
                                              alarmToWorkPos_time := T#1S,
                                              atHomePos_time := T#100MS,
                                              atWorkPos_time := T#100MS,
@@ -39,7 +39,8 @@ END_VAR
 VAR_INST
     simulateTravel_ton : Tc2_Standard.TON;
     timeout_ton        : Tc2_Standard.TON;
-END_VAR]]></Declaration>
+END_VAR
+]]></Declaration>
       <Implementation>
         <ST><![CDATA[
 IF TcUnit.TEST_ORDERED('CloseCylinder') THEN
@@ -84,7 +85,8 @@ END_VAR
 VAR CONSTANT
     TEST_CYLINDER_OPENING_PHASE_NAME : STRING := 'CloseCylinderDuringOpening - opening phase';
     TEST_CYLINDER_CLOSING_PHASE_NAME : STRING := 'CloseCylinderDuringOpening - closing phase';
-END_VAR]]></Declaration>
+END_VAR
+]]></Declaration>
       <Implementation>
         <ST><![CDATA[
 IF TcUnit.TEST_ORDERED(TEST_CYLINDER_OPENING_PHASE_NAME) THEN
@@ -184,7 +186,7 @@ END_VAR
                 inAtPosHome_sensor := FALSE,
                 inAtPosWork_sensor := refCylinder.outAtPosWork);
 
-    travelTime_ton(IN := TRUE, PT := THIS^._timingConfig.alarmToHomPos_time);
+    travelTime_ton(IN := TRUE, PT := THIS^._timingConfig.alarmToHomePos_time);
 
     IF travelTime_ton.Q THEN
         AssertFalse(refCylinder.outAtPosHome, 'outInHomePos is not FALSE');
@@ -374,7 +376,7 @@ END_IF
       <Declaration><![CDATA[METHOD OpenCylinder
 VAR_INPUT
     refCylinder : REFERENCE TO CylinderMonostable;
-    testName : STRING;
+    testName    : STRING;
 END_VAR
 VAR
     openCylinderTest_name : STRING := Tc2_Standard.CONCAT('OpenCylinder', testName);
@@ -382,7 +384,8 @@ END_VAR
 VAR_INST
     simulateTravel_ton : Tc2_Standard.TON;
     timeout_ton        : Tc2_Standard.TON;
-END_VAR]]></Declaration>
+END_VAR
+]]></Declaration>
       <Implementation>
         <ST><![CDATA[
 IF TcUnit.TEST_ORDERED(openCylinderTest_name) THEN

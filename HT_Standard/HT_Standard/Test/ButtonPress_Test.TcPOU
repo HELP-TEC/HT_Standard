@@ -24,7 +24,6 @@ END_VAR
 VAR
     bp : ButtonPress;
 END_VAR
-
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[TEST('buttonDisableTest');
@@ -65,15 +64,14 @@ END_VAR
 VAR
     bp : ButtonPress;
 END_VAR
-
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[TEST('hmiSignalOutputTest');
 
 (* TEST 1 *)
 bp(inDisable := FALSE,
-       inOn      := FALSE,
-       inError   := FALSE);
+   inOn      := FALSE,
+   inError   := FALSE);
 
 AssertEquals_BOOL(Expected := FALSE,
                   Actual   := bp._disable,
@@ -89,8 +87,8 @@ AssertEquals_BOOL(Expected := FALSE,
 
 (* TEST 2 *)
 bp(inDisable := TRUE,
-       inOn      := FALSE,
-       inError   := FALSE);
+   inOn      := FALSE,
+   inError   := FALSE);
 
 AssertEquals_BOOL(Expected := TRUE,
                   Actual   := bp._disable,
@@ -103,10 +101,11 @@ AssertEquals_BOOL(Expected := FALSE,
 AssertEquals_BOOL(Expected := FALSE,
                   Actual   := bp._error,
                   Message  := 'TEST 2: button._error is not FALSE');
+
 (* TEST 3 *)
 bp(inDisable := TRUE,
-       inOn      := TRUE,
-       inError   := FALSE);
+   inOn      := TRUE,
+   inError   := FALSE);
 
 AssertEquals_BOOL(Expected := TRUE,
                   Actual   := bp._disable,
@@ -119,10 +118,11 @@ AssertEquals_BOOL(Expected := TRUE,
 AssertEquals_BOOL(Expected := FALSE,
                   Actual   := bp._error,
                   Message  := 'TEST 3: button._error is not FALSE');
+
 (* TEST 4 *)
 bp(inDisable := TRUE,
-       inOn      := TRUE,
-       inError   := TRUE);
+   inOn      := TRUE,
+   inError   := TRUE);
 
 AssertEquals_BOOL(Expected := TRUE,
                   Actual   := bp._disable,
@@ -135,10 +135,11 @@ AssertEquals_BOOL(Expected := FALSE,
 AssertEquals_BOOL(Expected := TRUE,
                   Actual   := bp._error,
                   Message  := 'TEST 4: button._error is not TRUE');
+
 (* TEST 5 *)
 bp(inDisable := FALSE,
-       inOn      := FALSE,
-       inError   := TRUE);
+   inOn      := FALSE,
+   inError   := TRUE);
 
 AssertEquals_BOOL(Expected := FALSE,
                   Actual   := bp._disable,
@@ -152,7 +153,8 @@ AssertEquals_BOOL(Expected := TRUE,
                   Actual   := bp._error,
                   Message  := 'TEST 5: button._error is not TRUE');
 
-TcUnit.TEST_FINISHED();]]></ST>
+TcUnit.TEST_FINISHED();
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="outputsTestsWithAllInputFalse" Id="{de7bdba4-d311-4130-84fb-e50dc882bf37}">
