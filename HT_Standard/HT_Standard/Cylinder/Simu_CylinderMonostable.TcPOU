@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Simu_CylinderMonostable" Id="{a858aeb7-6154-4ca0-812e-9c8067d74ce9}" SpecialFunc="None">
+    <Declaration><![CDATA[/// Simulate a cylinder movement.
+/// Work with CylinderMonostable
+FUNCTION_BLOCK Simu_CylinderMonostable
+VAR_INPUT
+    inEnable                : BOOL; // enable the simulation of a the connected Cylinder
+    inRefCylinder           : REFERENCE TO CylinderMonostable;
+    inAtPosHome_sensor      : BOOL;
+    inAtPosWork_sensor      : BOOL;
+    inToHomePositionTime_ms : DINT; // time in ms when GS signal should be on
+    inToWorkPositionTime_ms : DINT; // time in ms when AS signal should be on
+END_VAR
+VAR
+    ton_ToHomePosition : Tc2_Standard.TON;
+    ton_ToWorkPosition : Tc2_Standard.TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+IF NOT __ISVALIDREF(inRefCylinder) THEN
+    RETURN;
+END_IF
+
+ton_ToHomePosition(IN := NOT inRefCylinder.outValvePosWork,
+                   PT := DINT_TO_TIME(inToHomePositionTime_ms));
+
+ton_ToWorkPosition(IN := inRefCylinder.outValvePosWork,
+                   PT := DINT_TO_TIME(inToWorkPositionTime_ms));
+
+inRefCylinder.inAtPosHome_sensor := (inEnable AND ton_ToHomePosition.Q) OR
+                                    (NOT inEnable AND inAtPosHome_sensor);
+
+inRefCylinder.inAtPosWork_sensor := (inEnable AND ton_ToWorkPosition.Q) OR
+                                    (NOT inEnable AND inAtPosWork_sensor);
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
