@@ -8,7 +8,7 @@ VAR_OUTPUT
 END_VAR
 VAR
     _cylinder     : CylinderBistable;
-    _timingConfig : CylinderTimingConfig := (alarmToHomPos_time := T#1S,
+    _timingConfig : CylinderTimingConfig := (alarmToHomePos_time := T#1S,
                                              alarmToWorkPos_time := T#1S,
                                              atHomePos_time := T#100MS,
                                              atWorkPos_time := T#100MS,
@@ -184,7 +184,7 @@ END_VAR
                 inAtPosHome_sensor := FALSE,
                 inAtPosWork_sensor := refCylinder.outAtPosWork);
 
-    travelTime_ton(IN := TRUE, PT := THIS^._timingConfig.alarmToHomPos_time);
+    travelTime_ton(IN := TRUE, PT := THIS^._timingConfig.alarmToHomePos_time);
 
     IF travelTime_ton.Q THEN
         AssertFalse(refCylinder.outAtPosHome, 'outInHomePos is not FALSE');

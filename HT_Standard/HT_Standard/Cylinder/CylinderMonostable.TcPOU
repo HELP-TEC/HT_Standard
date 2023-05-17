@@ -166,7 +166,7 @@ END_IF
 
 // We have to update the timer here to be able to match the timing error
 TON_ErrGS(in := (_state = eCylinderStep.MOVE_TO_HOME_POS) AND NOT inAtPosHome_sensor,
-          pt := inTimingConfig.alarmToHomPos_time);
+          pt := inTimingConfig.alarmToHomePos_time);
 
 // We have to update the timer here to be able to match the timing error
 TON_ErrAS(in := (_state = eCylinderStep.MOVE_TO_WORK_POS) AND NOT inAtPosWork_sensor,
