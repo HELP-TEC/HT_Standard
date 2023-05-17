@@ -71,6 +71,10 @@
     <Compile Include="HMI\ButtonHMI.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="HMI\ButtonLongPress.TcPOU">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
     <Compile Include="HMI\ButtonTrig.TcPOU">
       <SubType>Code</SubType>
     </Compile>
