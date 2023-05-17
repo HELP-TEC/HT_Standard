@@ -16,9 +16,9 @@
     <Implicit_Jitter_Distribution>{b2496e7c-47b3-4ab4-b8fd-54b56e25c68b}</Implicit_Jitter_Distribution>
     <LibraryReferences>{45fa3c48-73ad-4021-b862-c3234b1fe4d4}</LibraryReferences>
     <Company>Help-tec Automation AG</Company>
-    <Released>false</Released>
+    <Released>true</Released>
     <Title>HT_Standard</Title>
-    <ProjectVersion>0.2.0</ProjectVersion>
+    <ProjectVersion>0.3.0</ProjectVersion>
     <DefaultNamespace>HT_Standard</DefaultNamespace>
     <Placeholder>HT_Standard</Placeholder>
     <Author>Roger Schluep</Author>
@@ -60,6 +60,14 @@
     <Compile Include="Cylinder\eCylinderStep.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Cylinder\Simu_CylinderBistable.TcPOU">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="Cylinder\Simu_CylinderMonostable.TcPOU">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
     <Compile Include="HMI\ButtonHMI.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -92,7 +100,6 @@
     <Folder Include="Cylinder" />
     <Folder Include="HMI" />
     <Folder Include="Test" />
-    <Folder Include="VISUs" />
   </ItemGroup>
   <ItemGroup>
     <PlaceholderReference Include="Tc2_Standard">

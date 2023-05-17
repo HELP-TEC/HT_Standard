@@ -22,7 +22,8 @@ outPress       := _button AND NOT inDisable;
 outRisingEdge  := _button AND NOT _clk AND NOT inDisable;
 outFallingEdge := NOT _button AND _clk AND NOT inDisable;
 
-_clk := _button;]]></ST>
+_clk := _button;
+]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

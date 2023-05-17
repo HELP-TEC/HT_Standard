@@ -16,7 +16,8 @@ hmiSignalOutputTest();
 
 buttonDisableTest();
 
-LongPressTest();]]></ST>
+LongPressTest();
+]]></ST>
     </Implementation>
     <Method Name="buttonDisableTest" Id="{c9a56d89-6cf3-4fe4-9a03-fac04dfc94f5}">
       <Declaration><![CDATA[METHOD buttonDisableTest
@@ -25,7 +26,6 @@ END_VAR
 VAR
     bp : ButtonTrig;
 END_VAR
-
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[TEST('buttonDisableTest');
@@ -66,7 +66,6 @@ END_VAR
 VAR
     bp : ButtonTrig;
 END_VAR
-
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[TEST('hmiSignalOutputTest');
@@ -185,7 +184,8 @@ AssertTrue(bp.outRisingEdge, 'At the first call, bp.outRisingEdge must be TRUE')
 bp.SetButton(TRUE);
 bp();
 
-AssertFalse(bp.outRisingEdge, 'At the second call, bp.outRisingEdge must be FALSE even if the HMI force the button to be on');
+AssertFalse(bp.outRisingEdge,
+            'At the second call, bp.outRisingEdge must be FALSE even if the HMI force the button to be on');
 
 bp.SetButton(FALSE);
 bp();
